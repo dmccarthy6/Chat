@@ -58,7 +58,10 @@ class FriendRequestsTableViewController: UIViewController, UITableViewDelegate, 
             
             //Segue to Friends List Here?
         }
-
+        
+        let id = FriendSystem.system.requestList[indexPath.row].id
+        print("ID from Friend Requests: \(id!)")
+        
         return cell!
     }
    

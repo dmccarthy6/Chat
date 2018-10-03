@@ -167,29 +167,32 @@ class FriendSystem {
     var userList = [UserClass]()
     
     func addUserObserver(_ update: @escaping () -> Void) {
+        //DataEventType.value - instead of .childAdded 10/2/18
         FriendSystem.system.USER_REF.observe(DataEventType.value, with: { (snapshot) in
-            self.userList.removeAll()
             
+            self.userList.removeAll()
+            print("Users snapshot \(snapshot)")
             for child in snapshot.children.allObjects as! [DataSnapshot] {
                 guard let dictionary = child.value as? [String:AnyObject] else {
                     print("Dictionary Empty - UserObserver")
                     return
                 }
-                
+                print("AddUserObserver Data Snapshot - \(DataSnapshot())")
                 guard let email = dictionary["email"] as? String else {
-                    print("Thinks Dictionary Is blank?!?!?!")
+                    print("Thinks Email Value Is blank in User Observer")
                     return
                 }
-                
+                print("Email - \(email)")
                 guard let name = dictionary["name"] as? String else {
+                    print("Name is empty in userobserver")
                     return
                 }
                 
-                //let email = dictionary["email"] as? String
-                //let email = child.childSnapshot(forPath: "email").value as! String
+                let id = child.key
+                
                 if email != Auth.auth().currentUser?.email! {
-                    self.userList.append(UserClass(userEmail: email, userID: child.key, name: name))
-                    print("ID's from Friend System AddUserObserver: \(child.key)")
+                    self.userList.append(UserClass(userEmail: email, userID: id, name: name))
+//                    print("ID's from Friend System AddUserObserver: \(child.key)")
                 }
             }
             update()
@@ -227,7 +230,6 @@ class FriendSystem {
     func removeFriendObserver() {
         CURRENT_USER_FRIENDS_REF.removeAllObservers()
     }
-    
     
     //MARK: - All Requests
     //List of all the friend requests the current user has

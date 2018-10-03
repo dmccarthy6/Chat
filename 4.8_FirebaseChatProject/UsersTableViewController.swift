@@ -19,18 +19,16 @@ class UsersTableViewController: UIViewController, UITableViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         let bundle = Bundle(for: type(of: self))
         let cellNib = UINib(nibName: "UserCell", bundle: bundle)
         self.tableView.register(cellNib, forCellReuseIdentifier: "UsersCell")
-        
-        print("Current User Name(Users VDL): \(FriendSystem.system.CURRENT_USER_NAME)")
-        print("Current User ID(Users VDL): \(FriendSystem.system.CURRENT_USER_ID)")
-        
+
         FriendSystem.system.getCurrentUser { (user) in
             let name = user.name
            self.currentUserLabel.text = "\(name!)'s Account"
         }
-        
+
         FriendSystem.system.addUserObserver {
             self.tableView.reloadData()
         }
@@ -88,8 +86,10 @@ extension UsersTableViewController: UITableViewDataSource {
         cell?.setFunction {
             let id = FriendSystem.system.userList[indexPath.row].id
             FriendSystem.system.sendRequestToUser(id!)
+            
         }
-        
+        let id = FriendSystem.system.userList[indexPath.row].id
+        print("ID from UsersTableVC - \(id!) This should be Friend?")
         return cell!
     }
 }

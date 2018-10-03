@@ -7,17 +7,13 @@
 //
 
 import UIKit
-
-
-protocol MessageDelegate {
-    func messageSentTo(user: String)
-}
+import Firebase
 
 class FriendsListTableViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     //MARK: - Properties:
     var recipientName: String?
-    var delegate: MessageDelegate?
+    var friendID: String?
     
     
     //MARK: - Outlets
@@ -67,12 +63,43 @@ class FriendsListTableViewController: UIViewController, UITableViewDataSource, U
         
         cell!.setFunction {
             
+            guard let selectedFriend = FriendSystem.system.friendsList[indexPath.row].name else { return }
+            self.recipientName = selectedFriend
             self.performSegue(withIdentifier: "showChatsList", sender: self)
 
         }
-        
+        let id = FriendSystem.system.friendsList[indexPath.row].id
+        print("ID from friends list - this it? \(id)")
         return cell!
     }
+    
+    
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showChatsList" {
+            let navController = segue.destination as! UINavigationController
+            let chatListVC = navController.topViewController as! ChatListTableTableViewController
+            chatListVC.messageRecipient = self.recipientName
+            chatListVC.friendID = self.friendID
+        }
+    }
+    
+//    func checkForMessages() {
+//        FriendSystem.system.CURRENT_USER_REF.observe(DataEventType.value, with: { (snapshot) -> Void in
+//            if let value = snapshot.value as? [String : AnyObject] {
+//
+//                let messages = value["messages"] as! String
+//                let id = value["id"] as! String
+//                print("ID from data snapshot in checkForMessages\(id)")
+//
+//                if messages != "" {
+//                    self.performSegue(withIdentifier: "showChatsList", sender: self)
+//                } else {
+//                    self.performSegue(withIdentifier: "chatCell", sender: self)
+//                }
+//            }
+//        })
+//    }
     
     func sendMessageRecipient(indexPath: IndexPath) {
         guard let messageReceived = FriendSystem.system.friendsList[indexPath.row].name else {
@@ -80,30 +107,20 @@ class FriendsListTableViewController: UIViewController, UITableViewDataSource, U
             return
         }
         recipientName = messageReceived
-        self.delegate?.messageSentTo(user: recipientName!)//Force Unwrapping - be careful!
+        
+        guard let id = FriendSystem.system.friendsList[indexPath.row].id else {return}
+        friendID = id
         
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "" {
-            let vc: ChatListTableTableViewController = segue.destination as! ChatListTableTableViewController
-            vc.delegate = self
-        }
-    }
  
 }
 
 
-/*cell!.setFunction {
- let messageReceived = FriendSystem.system.friendsList[indexPath.row].name
- 
- if self.delegate != nil {
- self.delegate?.messageSentTo(user: messageReceived!)
- }
- 
- 
- self.performSegue(withIdentifier: "showChat", sender: self)
- }
- 
- return cell!
- }*/
+extension FriendsListTableViewController: MessageDelegate {
+    func messageSentTo(user: String) {
+        print("This is the user \(user)")
+    }
+    
+    
+}

@@ -160,7 +160,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="uDS-At-18n" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1872.8" y="1134.7826086956522"/>
+            <point key="canvasLocation" x="1836" y="1333"/>
         </scene>
         <!--Requests-->
         <scene sceneID="voO-l6-Sdp">
@@ -212,7 +212,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6Ab-OK-Vo0" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2658.4000000000001" y="1175.2623688155923"/>
+            <point key="canvasLocation" x="3252" y="158"/>
         </scene>
         <!--Friends-->
         <scene sceneID="pFL-LY-wWJ">
@@ -292,12 +292,12 @@
                     <tabBarItem key="tabBarItem" title="Friends" id="t0s-9v-Is3"/>
                     <connections>
                         <outlet property="tableView" destination="HmG-vz-Wnb" id="rWB-d7-3d8"/>
-                        <segue destination="Uc2-0e-6zJ" kind="show" identifier="showChatsList" id="pXa-4y-f5y"/>
+                        <segue destination="Uc2-0e-6zJ" kind="showDetail" identifier="showChatsList" id="pXa-4y-f5y"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="vsW-gC-HHO" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1719.2" y="445.72713643178412"/>
+            <point key="canvasLocation" x="834" y="524"/>
         </scene>
         <!--All Users-->
         <scene sceneID="Y9M-M8-sjE">
@@ -411,15 +411,31 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="chatCell" id="8Qv-qq-yuB">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="chatCell" textLabel="99f-dM-HQ9" detailTextLabel="y0u-S2-BkG" style="IBUITableViewCellStyleSubtitle" id="8Qv-qq-yuB">
                                 <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="8Qv-qq-yuB" id="W1S-0x-fDY">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="99f-dM-HQ9">
+                                            <rect key="frame" x="16" y="0.0" width="46.5" height="30"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="25"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Subtitle" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="y0u-S2-BkG">
+                                            <rect key="frame" x="16" y="30" width="44" height="14.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
                                 </tableViewCellContentView>
                                 <connections>
-                                    <segue destination="j8f-n3-CP2" kind="show" identifier="showChat" id="Wel-pe-ZJQ"/>
+                                    <segue destination="j8f-n3-CP2" kind="show" identifier="showChatsList" id="4fh-TN-9PU"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -429,6 +445,11 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" id="hBm-ab-gP3">
+                        <barButtonItem key="leftBarButtonItem" title="Dismiss" id="4PV-jU-Dpd">
+                            <connections>
+                                <action selector="dismissButtonTapped:" destination="cKw-MG-4Ct" id="U9d-UM-V3t"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="compose" id="JNG-Mn-7bx">
                             <connections>
                                 <action selector="composeButtonTapped:" destination="cKw-MG-4Ct" id="42N-iN-veL"/>
@@ -438,7 +459,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4GT-lo-m8T" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1034" y="1135"/>
+            <point key="canvasLocation" x="894" y="1333"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Mlz-Z3-8PW">
@@ -456,7 +477,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="GdD-qg-I5Y" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="185" y="1135"/>
+            <point key="canvasLocation" x="-252" y="1333"/>
         </scene>
     </scenes>
 </document>

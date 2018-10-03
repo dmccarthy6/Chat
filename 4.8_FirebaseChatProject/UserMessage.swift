@@ -15,38 +15,57 @@ import MessageKit
 //    var text: String
 //    var userName:
 //}
-
+let member = Member(name: FriendSystem.system.CURRENT_USER_NAME, senderID: FriendSystem.system.CURRENT_USER_ID)
 struct Member {
     var name: String
-    var color: UIColor
     var senderID: String
 }
 
-struct Message {
-    let member: Member
-    let text: String
-    let messageID: String
-}
+//struct Message {
+//    let toId: String
+//    let fromId: String
+//    let name: String
+//    var text: String
+//    let messageID: String
+//}
+//
+//extension Message: MessageType {
+//    var messageId: String {
+//        return UUID().uuidString
+//    }
+//
+//    var sender: Sender {
+//
+//        return Sender(id: member.senderID, displayName: member.name)
+//    }
+//
+//
+//
+//    var sentDate: Date {
+//        return Date()
+//    }
+//
+//    var kind: MessageKind {
+//        return .text(text)
+//    }
 
-extension Message: MessageType {
-    var messageId: String {
-        return UUID().uuidString
+    
+struct Message: MessageType {
+    var messageId: String
+    var sender: Sender
+    var sentDate: Date
+    var kind: MessageKind
+    
+    private init(kind: MessageKind, sender: Sender, messageId: String, date: Date) {
+        self.kind = kind
+        self.sender = sender
+        self.messageId = messageId
+        self.sentDate = date
     }
     
-    var sender: Sender {
-        return Sender(id: member.name, displayName: member.name)
+    init(text: String, sender: Sender, messageId: String, date: Date) {
+        self.init(kind: .text(text), sender: sender, messageId: messageId, date: date)
     }
-    
-    
-    
-    var sentDate: Date {
-        return Date()
-    }
-    
-    var kind: MessageKind {
-        return .text(text)
-    }
-    
     
 }
 
@@ -73,3 +92,4 @@ extension Message: MessageType {
 //    }
 //
 //}
+
