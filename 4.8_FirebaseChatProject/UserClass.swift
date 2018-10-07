@@ -11,15 +11,18 @@ import UIKit
 
 class UserClass {
     
-    var email: String!
-    var id: String!
-    var name: String!
-    
-    init(userEmail: String, userID: String, name: String) {
-        self.email = userEmail
-        self.id = userID
-        self.name = name
-    }
+    var name: String?
+    var email: String?
+    var id: String?
+//    var email: String!
+//    var id: String!
+//    var name: String!
+//
+//    init(userEmail: String, userID: String, name: String) {
+//        self.email = userEmail
+//        self.id = userID
+//        self.name = name
+//    }
 
     
 }

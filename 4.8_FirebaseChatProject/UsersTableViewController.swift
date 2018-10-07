@@ -53,13 +53,8 @@ class UsersTableViewController: UIViewController, UITableViewDelegate {
         
     }
     
-    @IBAction func myFriendsButtonTapped(_ sender: UIButton) {
-    
-        tabBarController?.selectedIndex = 1
-    }
-    
-    
 }
+
 
 extension UsersTableViewController: UITableViewDataSource {
     
@@ -88,8 +83,6 @@ extension UsersTableViewController: UITableViewDataSource {
             FriendSystem.system.sendRequestToUser(id!)
             
         }
-        let id = FriendSystem.system.userList[indexPath.row].id
-        print("ID from UsersTableVC - \(id!) This should be Friend?")
         return cell!
     }
 }

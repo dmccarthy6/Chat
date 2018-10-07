@@ -14,7 +14,9 @@ class FriendsListTableViewController: UIViewController, UITableViewDataSource, U
     //MARK: - Properties:
     var recipientName: String?
     var friendID: String?
-    
+    var user = [UserClass]()
+    var userClass = UserClass()
+   
     
     //MARK: - Outlets
     @IBOutlet var tableView: UITableView!
@@ -66,13 +68,28 @@ class FriendsListTableViewController: UIViewController, UITableViewDataSource, U
             guard let selectedFriend = FriendSystem.system.friendsList[indexPath.row].name else { return }
             self.recipientName = selectedFriend
             self.performSegue(withIdentifier: "showChatsList", sender: self)
-
+            let id = FriendSystem.system.friendsList[indexPath.row].id
+            let email = FriendSystem.system.friendsList[indexPath.row].email
+            let name = FriendSystem.system.friendsList[indexPath.row].name
+            
+            self.userClass.id = id!
+            self.userClass.email = email!
+            self.userClass.name = name!
+            self.user.append(self.userClass)
+            
+            
+            print("ID from friends list - this it? \(self.userClass.email, self.userClass.name, self.userClass.id)")
         }
-        let id = FriendSystem.system.friendsList[indexPath.row].id
-        print("ID from friends list - this it? \(id)")
         return cell!
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let friendId = FriendSystem.system.friendsList[indexPath.row].id
+        self.friendID = friendId
+        
+        
+        print("This is id from DidSelectRow - Friends List TVC - \(String(describing: friendId))")
+    }
     
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -110,10 +127,7 @@ class FriendsListTableViewController: UIViewController, UITableViewDataSource, U
         
         guard let id = FriendSystem.system.friendsList[indexPath.row].id else {return}
         friendID = id
-        
     }
-    
- 
 }
 
 

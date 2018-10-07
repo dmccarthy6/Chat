@@ -9,6 +9,7 @@
 import Foundation
 import Firebase
 import FirebaseAuth
+import MessageKit
 
 class FriendSystem {
     
@@ -18,6 +19,8 @@ class FriendSystem {
     
     let BASE_REF = Database.database().reference()
     let USER_REF = Database.database().reference().child("users")
+    let MESSAGE_REF = Database.database().reference().child("Messages")
+    var messageToId: String?
     
     var CURRENT_USER_REF: DatabaseReference {
         let id = Auth.auth().currentUser!.uid
@@ -43,21 +46,33 @@ class FriendSystem {
     }
     
     
+    
+    
     func getCurrentUser(_ completion: @escaping (UserClass) -> Void) {
         CURRENT_USER_REF.observeSingleEvent(of: DataEventType.value, with: { (snapshot) in
+            let user = UserClass()
             let email = snapshot.childSnapshot(forPath: "email").value as! String
             let name = snapshot.childSnapshot(forPath: "name").value as! String
             let id = snapshot.key
-            completion(UserClass(userEmail: email, userID: id, name: name))
+            
+            user.email = email
+            user.name = name
+            user.id = id
+            completion(user)
         })
     }
     
     func getUser(_ userID: String, completion: @escaping (UserClass) -> Void) {
         USER_REF.child(userID).observeSingleEvent(of: DataEventType.value, with: { (snapshot) in
+            let user = UserClass()
             let email = snapshot.childSnapshot(forPath: "email").value as! String
             let name = snapshot.childSnapshot(forPath: "name").value as! String
             let id = snapshot.key
-            completion(UserClass(userEmail: email, userID: id, name: name))
+            
+            user.email = email
+            user.name = name
+            user.id = id
+            completion(user)
         })
     }
     
@@ -87,20 +102,20 @@ class FriendSystem {
         }
     }
     
+    
+    func setUserName(_ user: User, name: String) {
+        let changeRequest = user.createProfileChangeRequest()
+        changeRequest.displayName = name
         
-        func setUserName(_ user: User, name: String) {
-            let changeRequest = user.createProfileChangeRequest()
-            changeRequest.displayName = name
-            
-            changeRequest.commitChanges { (error) in
-                if let error = error {
-                    print(error.localizedDescription)
-                    return
-                }
-                AuthenticationManager.sharedInstance.didLogIn(user: user)
-                
+        changeRequest.commitChanges { (error) in
+            if let error = error {
+                print(error.localizedDescription)
+                return
             }
+            AuthenticationManager.sharedInstance.didLogIn(user: user)
+            
         }
+    }
     
     
     func loginAccount(_ email: String, password: String, completion: @escaping (_ success: Bool) -> Void) {
@@ -169,39 +184,34 @@ class FriendSystem {
     func addUserObserver(_ update: @escaping () -> Void) {
         //DataEventType.value - instead of .childAdded 10/2/18
         FriendSystem.system.USER_REF.observe(DataEventType.value, with: { (snapshot) in
-            
+            //let user = UserClass()
             self.userList.removeAll()
-            print("Users snapshot \(snapshot)")
+            
             for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let dictionary = child.value as? [String:AnyObject] else {
-                    print("Dictionary Empty - UserObserver")
-                    return
-                }
-                print("AddUserObserver Data Snapshot - \(DataSnapshot())")
-                guard let email = dictionary["email"] as? String else {
-                    print("Thinks Email Value Is blank in User Observer")
-                    return
-                }
-                print("Email - \(email)")
-                guard let name = dictionary["name"] as? String else {
-                    print("Name is empty in userobserver")
-                    return
-                }
+                guard let dictionary = child.value as? [String:AnyObject] else { return }
+                guard let email = dictionary["email"] as? String else { return }
+                guard let name = dictionary["name"] as? String else { return }
                 
                 let id = child.key
+                self.messageToId = id
                 
                 if email != Auth.auth().currentUser?.email! {
-                    self.userList.append(UserClass(userEmail: email, userID: id, name: name))
-//                    print("ID's from Friend System AddUserObserver: \(child.key)")
+                    let user = UserClass()
+                    user.name = name //dictionary["name"] as! String
+                    user.email = email //dictionary["email"] as! String
+                    user.id = id
+                    
+                    self.userList.append(user)
+                    //                    print("ID's from Friend System AddUserObserver: \(child.key)")
                 }
             }
             update()
         })
     }
     
+    
     func removeUserObserver() {
         USER_REF.removeAllObservers()
-        
     }
     
     
@@ -231,15 +241,45 @@ class FriendSystem {
         CURRENT_USER_FRIENDS_REF.removeAllObservers()
     }
     
+    //10/6/18 - This function Added Today
+    var messages = [MessageType]()
+    
+    func addChatObserver(_ update: @escaping () -> Void) {
+        MESSAGE_REF.observe(DataEventType.value, with: { (snapshot) in
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                if let dictionary = child.value as? [String : AnyObject] {
+                    let toId = dictionary["toId"] as! String
+                    let name = dictionary["name"] as! String
+                    let text = dictionary["text"] as! String
+                    let fromId = dictionary["fromId"] as! String
+                    
+                    let id = child.key
+                    print("This is add Chat Observer ID: \(id)")
+                    print("This is dictionary from addChatObserver \(dictionary)")
+                    //                let toId = self.messageToId!
+                    //                let fromId = self.CURRENT_USER_ID
+                }//Dict End
+                
+                //                let sender = Sender(id: fromId, displayName: name)
+                //                let message = Message(text: <#T##String#>, sender: sender, messageId: <#T##String#>, date: Date())
+                
+                update()
+            }
+            
+            if snapshot.childrenCount == 0 {
+                update()
+            }
+        })
+    }
+    
+    
     //MARK: - All Requests
     //List of all the friend requests the current user has
     var requestList = [UserClass]()
     
     func addRequestObserver(_ update: @escaping () -> Void) {
         CURRENT_USER_REQUESTS_REF.observe(DataEventType.value, with: { (snapshot) in
-            
-            //self.requestList.removeAll()
-            
+            self.requestList.removeAll()
             for child in snapshot.children.allObjects as! [DataSnapshot] {
                 let id = child.key
                 self.getUser(id, completion: { (user) in
@@ -323,3 +363,42 @@ class FriendSystem {
  } else {
  //Failure
  completion(false)*/*/
+
+
+
+
+//
+//func addUserObserver(_ update: @escaping () -> Void) {
+//    //DataEventType.value - instead of .childAdded 10/2/18
+//    FriendSystem.system.USER_REF.observe(DataEventType.value, with: { (snapshot) in
+//        //let user = UserClass()
+//
+//        self.userList.removeAll()
+//        print("Users snapshot \(snapshot)")
+//        for child in snapshot.children.allObjects as! [DataSnapshot] {
+//            guard let dictionary = child.value as? [String:AnyObject] else {
+//                print("Dictionary Empty - UserObserver")
+//                return
+//            }
+//            print("AddUserObserver Data Snapshot - \(DataSnapshot())")
+//            guard let email = dictionary["email"] as? String else {
+//                print("Thinks Email Value Is blank in User Observer")
+//                return
+//            }
+//            print("Email - \(email)")
+//            guard let name = dictionary["name"] as? String else {
+//                print("Name is empty in userobserver")
+//                return
+//            }
+//
+//            let id = child.key
+//
+//            if email != Auth.auth().currentUser?.email! {
+//
+//                self.userList.append(UserClass(userEmail: email, userID: id, name: name))
+//                //                    print("ID's from Friend System AddUserObserver: \(child.key)")
+//            }
+//        }
+//        update()
+//    })
+//}

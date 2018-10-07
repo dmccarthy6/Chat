@@ -19,13 +19,16 @@ class ChatListTableTableViewController: UITableViewController {
     var messageRecipient: String?
     var listOfMessages = [String]()
     var friendID: String?
+    var user = UserClass()
     //var delegate: MessageDelegate?
 
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        print("Friend ID from local - Chat List VC \(user.id)")
+        print("Friend Name from local - Chat List VC \(user.name)")
+        
         let title = FriendSystem.system.CURRENT_USER_NAME
         navigationItem.title = "\(title)'s Messages"
         
@@ -65,9 +68,9 @@ class ChatListTableTableViewController: UITableViewController {
         let cellText = listOfMessages[indexPath.row]
         cell.textLabel?.text = cellText
         cell.detailTextLabel?.text = "Message Text Here"
-
+        print("Chat List Friend ID(passed value): \(self.friendID!)")
         return cell
-
+        
     }
     
 
@@ -90,7 +93,7 @@ class ChatListTableTableViewController: UITableViewController {
             
             let chatVC = segue.destination as! ChatViewController
             chatVC.toId = self.friendID!
-            
+            print("Passing Friend ID: \(self.friendID!)")
         } else {
             print("DID NOT HIT PREPARE FOR SEGUE IN CHAT LIST VC")
         }

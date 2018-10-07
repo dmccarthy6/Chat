@@ -26,7 +26,7 @@ class ChatViewController: MessagesViewController, MessageDelegate {
     private var databaseHandle: DatabaseHandle!
     var messageSentTo: String?
     var toId: String?
-    var messagesDictionary = [String : Message]()
+    var myUser = UserClass()
     
     var messageID: String = {
         var uuid = UUID().uuidString
@@ -39,15 +39,23 @@ class ChatViewController: MessagesViewController, MessageDelegate {
         }
     }
     
+    var MESSAGE_RECEIVER_REF: DatabaseReference {
+        let id = self.toId!
+        return FriendSystem.system.USER_REF.child("\(id)")
+    }
     
     //MARK: - Outlets
     
     override func viewDidLoad() {
         super.viewDidLoad()
         messageDelegates()
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        FriendSystem.system.addChatObserver {
+            
+        }
         loadMessages()
     }
     
@@ -60,79 +68,58 @@ class ChatViewController: MessagesViewController, MessageDelegate {
     
     func loadMessages() {
         messages.removeAll()
-        /* databaseHandle = */FriendSystem.system.USER_REF.child("messages").observe(.childAdded, with: { (snapshot) -> Void in
-            if let value = snapshot.value as? [String : AnyObject] {
+        FriendSystem.system.MESSAGE_REF.observe(.childAdded) { (snapshot) in
+            if let value = snapshot.value as? [String: AnyObject] {
                 let toId = value["toId"] as! String
                 let fromId = value["fromId"] as! String
                 let text = value["text"] as! String
                 let name = value["name"] as! String
-                //let messageId = value["messageId"] as! String
+
                 let sender = Sender(id: fromId, displayName: name)
                 let date = Date()
                 let message = Message(text: text, sender: sender, messageId: self.messageID, date: date)
-                
-                //let message = Message(toId: toId, fromId: fromId, name: name, text: text, messageID: self.messageID)
                 self.messages.append(message)
-                
-                //                guard let toIdSelected = self.toId else { return }
-                //                FriendSystem.system.USER_REF.child("messages").queryEqual(toValue: toIdSelected).observe(.childAdded, with: { (snapshot) in
-                //                    if let dictionary = snapshot.value as? [String : AnyObject] {
-                //                        let toId = dictionary["toId"] as! String
-                //                        let fromId = dictionary["fromId"] as! String
-                //                        let text = dictionary["text"] as! String
-                //                        let name = dictionary["name"] as! String
-                //
-                //                        let message = Message(toId: toId, fromId: fromId, name: name, text: text, messageID: self.messageID)
-                //                        self.messages.append(message)
-                //                    }
-                //                })
-                //self.messagesDictionary[message.toId] = message
-                //self.messages = Array(self.messagesDictionary.values)
-                
-                DispatchQueue.main.async {
-                    self.messagesCollectionView.reloadData()
-                    self.messagesCollectionView.scrollToBottom()
-                }
+        
+        //FriendSystem.system.getUser(<#T##userID: String##String#>, completion: <#T##(UserClass) -> Void#>)
+        
+                let query = FriendSystem.system.MESSAGE_REF.queryOrdered(byChild: "toId").queryEqual(toValue: toId)
+        
+        
+                query.observe(.childAdded, with: { (snapshot) in
+                    print("Messages Snapshot \(snapshot)")
+                    if let value = snapshot.value as? [String: AnyObject] {
+                        guard let text = value["text"] as? String else {
+                            print("No Messages")
+                            return
+                        }
+                        guard let fromId = value["fromId"] as? String else {
+                            print("no from id in Chat View Controller")
+                            return
+                        }
+                        guard let name = value["name"] as? String else { return }
+                        
+                        let sender = Sender(id: fromId, displayName: name)
+                        
+                        let userMessages = Message(text: text, sender: sender, messageId: self.messageID, date: Date())
+                        self.messages.append(userMessages)
+                        
+                        DispatchQueue.main.async {
+                            self.messagesCollectionView.reloadData()
+                            self.messagesCollectionView.scrollToBottom()
+                        }
+                    }
+                })
             }
-        })
+        }
+                
+//                DispatchQueue.main.async {
+//                    self.messagesCollectionView.reloadData()
+//                    self.messagesCollectionView.scrollToBottom()
+////                }
+//            }
+//        }
     }
     
-    
-    /*if let value = snapshot.value as? [String : AnyObject] {
-     let senderId = value["senderId"] as! String //This is Sender Name
-     let text = value["text"] as! String
-     let name = value["name"] as! String
-     let currentUserID = FriendSystem.system.CURRENT_USER_ID
-     
-     if senderId == currentUserID {
-     let message = Message(member: self.member, text: text, messageID: self.messageID)
-     self.messages.append(message)
-     } else {
-     print("This user doesn't have any messages")
-     }*/
-    
-    //OLD:
-    //        messages.removeAll() //ref.child("messages").observe(.childAdded, with: { (snapshot) -> Void in
-    //        databaseHandle = FriendSystem.system.CURRENT_USER_REF.child("messages").observe(.childAdded, with: { (snapshot) -> Void in
-    //            if let value = snapshot.value as? [String:AnyObject] {
-    //                let id = value["senderId"] as! String
-    //                let text = value["text"] as! String
-    //                let name = value["senderDisplayName"] as! String
-    //
-    //                //let sender = Sender(id: id, displayName: name)
-    //
-    //
-    //                //let message = UserMessage(text: text, sender: sender, messageId: id, date: Date())
-    //                let newMessage = Message(member: self.member, text: text, messageID: self.messageID)
-    //                self.messages.append(newMessage)
-    //
-    //                DispatchQueue.main.async {
-    //                    self.messagesCollectionView.reloadData()
-    //                    self.messagesCollectionView.scrollToBottom()
-    //                }
-    //            }
-    //        })
-    //   }
     
     
     @IBAction func logoutButtonTapped(_ sender: UIBarButtonItem) {
@@ -186,9 +173,11 @@ extension ChatViewController: MessageInputBarDelegate {
     
     func messageInputBar(_ inputBar: MessageInputBar, didPressSendButtonWith text: String) {
         
-        let messageRef = FriendSystem.system.USER_REF.child("messages").childByAutoId()
-        let toId = self.toId
+        let messageRef = FriendSystem.system.MESSAGE_REF.childByAutoId()
+        guard let toId = FriendSystem.system.messageToId else { return }//self.toId
         let fromId = FriendSystem.system.CURRENT_USER_ID
+        let me = user?.id!
+        print("\(me)")
         let name = currentSender().displayName
         let sender = Sender(id: fromId, displayName: name)
         let date = Date()
@@ -257,3 +246,130 @@ extension ChatViewController: MessagesDisplayDelegate, MessagesLayoutDelegate {
         }
     }
 }
+
+
+
+//        let toId = self.toId
+//        let query = FriendSystem.system.USER_REF.child("messages").queryEqual(toValue: toId!)
+//        query.observe(.value) { (snapshot) in
+//            for child in snapshot.children {
+//                if let database = snapshot.value as? [String : AnyObject] {
+//                    let toId = database["toId"] as! String
+//                    let fromId = database["fromId"] as! String
+//                    let name = database["name"] as! String
+//                    let message = database["text"] as! String
+//
+//                    let date = Date()
+//                    let sender = Sender(id: fromId, displayName: name)
+//                    let messageId = self.messageID
+//
+//                    let userMessages = Message(text: message, sender: sender, messageId: messageId, date: date)
+//                    self.messages.append(userMessages)
+//
+//                    DispatchQueue.main.async {
+//                        self.messagesCollectionView.reloadData()
+//                        self.messagesCollectionView.scrollToBottom()
+//                    }
+//                }
+//
+//            }
+//        }
+//    }
+
+
+//        /* databaseHandle = */MESSAGE_RECEIVER_REF.child("messages").observe(.childAdded, with: { (snapshot) -> Void in
+//            if let value = snapshot.value as? [String : AnyObject] {
+//                print("Load Messages Snapshot - \(snapshot)")
+//                let toId = value["toId"] as! String
+//                let fromId = value["fromId"] as! String
+//                let text = value["text"] as! String
+//                let name = value["name"] as! String
+//                //let messageId = value["messageId"] as! String
+//                let sender = Sender(id: fromId, displayName: name)
+//                let date = Date()
+//                let message = Message(text: text, sender: sender, messageId: self.messageID, date: date)
+//
+//                //let message = Message(toId: toId, fromId: fromId, name: name, text: text, messageID: self.messageID)
+//                self.messages.append(message)
+//
+//                DispatchQueue.main.async {
+//                    self.messagesCollectionView.reloadData()
+//                    self.messagesCollectionView.scrollToBottom()
+//                }
+//            }
+//        })
+//    }
+
+/*/* databaseHandle = */FriendSystem.system.BASE_REF.child("messages").observe(.childAdded, with: { (snapshot) -> Void in
+ if let value = snapshot.value as? [String : AnyObject] {
+ print("Load Messages Snapshot - \(snapshot)")
+ let toId = value["toId"] as! String
+ let fromId = value["fromId"] as! String
+ let text = value["text"] as! String
+ let name = value["name"] as! String
+ //let messageId = value["messageId"] as! String
+ let sender = Sender(id: fromId, displayName: name)
+ let date = Date()
+ let message = Message(text: text, sender: sender, messageId: self.messageID, date: date)
+ 
+ //let message = Message(toId: toId, fromId: fromId, name: name, text: text, messageID: self.messageID)
+ self.messages.append(message)
+ 
+ DispatchQueue.main.async {
+ self.messagesCollectionView.reloadData()
+ self.messagesCollectionView.scrollToBottom()
+ }
+ }
+ })
+ }*/
+/*func loadApplicants() {
+ let jobID = job.postID
+ let appRef = ref.child("jobs").child(jobID!).child("applicants")
+ appRef.queryOrderedByKey().observeSingleEvent(of: .childAdded, with: { (snapshot) in
+ if let applicants = snapshot.value! as? [String:AnyObject] {
+ for (value) in applicants {
+ self.authService.fetchApplicants(applicantID: "\(value!)", completion: { (users) in
+ self.usersArray = users
+ self.tableView.reloadData()
+ })
+ }
+ }
+ })
+ }*/
+
+/*if let value = snapshot.value as? [String : AnyObject] {
+ let senderId = value["senderId"] as! String //This is Sender Name
+ let text = value["text"] as! String
+ let name = value["name"] as! String
+ let currentUserID = FriendSystem.system.CURRENT_USER_ID
+ 
+ if senderId == currentUserID {
+ let message = Message(member: self.member, text: text, messageID: self.messageID)
+ self.messages.append(message)
+ } else {
+ print("This user doesn't have any messages")
+ }*/
+
+//OLD:
+//        messages.removeAll() //ref.child("messages").observe(.childAdded, with: { (snapshot) -> Void in
+//        databaseHandle = FriendSystem.system.CURRENT_USER_REF.child("messages").observe(.childAdded, with: { (snapshot) -> Void in
+//            if let value = snapshot.value as? [String:AnyObject] {
+//                let id = value["senderId"] as! String
+//                let text = value["text"] as! String
+//                let name = value["senderDisplayName"] as! String
+//
+//                //let sender = Sender(id: id, displayName: name)
+//
+//
+//                //let message = UserMessage(text: text, sender: sender, messageId: id, date: Date())
+//                let newMessage = Message(member: self.member, text: text, messageID: self.messageID)
+//                self.messages.append(newMessage)
+//
+//                DispatchQueue.main.async {
+//                    self.messagesCollectionView.reloadData()
+//                    self.messagesCollectionView.scrollToBottom()
+//                }
+//            }
+//        })
+//   }
+

@@ -15,7 +15,6 @@ class FriendRequestsTableViewController: UIViewController, UITableViewDelegate, 
         super.viewDidLoad()
         
         FriendSystem.system.addRequestObserver {
-            print("Request List From View Did Load in Reqiests VC: \(FriendSystem.system.requestList)")
             self.tableView.reloadData()
         }
         
@@ -49,8 +48,15 @@ class FriendRequestsTableViewController: UIViewController, UITableViewDelegate, 
             cell = tableView.dequeueReusableCell(withIdentifier: "UserCell") as? UserCell
         }
         
-        cell!.emailLabel.text = FriendSystem.system.requestList[indexPath.row].email
-        cell!.cellButton.setTitle("Accept", for: UIControlState())
+        let email = FriendSystem.system.requestList[indexPath.row].email
+       
+        if email != "" {
+            cell!.emailLabel.text = FriendSystem.system.requestList[indexPath.row].email
+            cell!.cellButton.setTitle("Accept", for: UIControlState())
+        } else {
+            cell?.emailLabel.text = "No Current Requests"
+        }
+        
         
         cell!.setFunction {
             let id = FriendSystem.system.requestList[indexPath.row].id
