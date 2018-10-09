@@ -26,6 +26,7 @@ class ChatViewController: MessagesViewController, MessageDelegate {
     private var databaseHandle: DatabaseHandle!
     var messageSentTo: String?
     var toId: String?
+    let fromId = FriendSystem.system.CURRENT_USER_ID
     var myUser = UserClass()
     
     var messageID: String = {
@@ -50,12 +51,11 @@ class ChatViewController: MessagesViewController, MessageDelegate {
         super.viewDidLoad()
         messageDelegates()
         
+        print("This is ToID from Chat VC (Value Passed): \(toId!)")
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        FriendSystem.system.addChatObserver {
-            
-        }
+        
         loadMessages()
     }
     
@@ -68,40 +68,27 @@ class ChatViewController: MessagesViewController, MessageDelegate {
     
     func loadMessages() {
         messages.removeAll()
-        FriendSystem.system.MESSAGE_REF.observe(.childAdded) { (snapshot) in
-            if let value = snapshot.value as? [String: AnyObject] {
-                let toId = value["toId"] as! String
-                let fromId = value["fromId"] as! String
-                let text = value["text"] as! String
-                let name = value["name"] as! String
-
-                let sender = Sender(id: fromId, displayName: name)
-                let date = Date()
-                let message = Message(text: text, sender: sender, messageId: self.messageID, date: date)
-                self.messages.append(message)
         
-        //FriendSystem.system.getUser(<#T##userID: String##String#>, completion: <#T##(UserClass) -> Void#>)
+        let currentUser = self.fromId
+        guard let chatReceiver = self.toId else { return }
+        let chatRoomId = (currentUser < chatReceiver) ? currentUser + "_" + chatReceiver : chatReceiver + "_" + currentUser
         
-                let query = FriendSystem.system.MESSAGE_REF.queryOrdered(byChild: "toId").queryEqual(toValue: toId)
-        
-        
-                query.observe(.childAdded, with: { (snapshot) in
-                    print("Messages Snapshot \(snapshot)")
-                    if let value = snapshot.value as? [String: AnyObject] {
-                        guard let text = value["text"] as? String else {
-                            print("No Messages")
-                            return
-                        }
-                        guard let fromId = value["fromId"] as? String else {
-                            print("no from id in Chat View Controller")
-                            return
-                        }
-                        guard let name = value["name"] as? String else { return }
-                        
+        FriendSystem.system.CHAT_ROOM_REF.observe(.childAdded, with: { (snapshot) in
+            print("HIT INSIDE REFERENCE")
+            let id = snapshot.key
+            if id.contains(currentUser) && id.contains(chatReceiver) {
+                FriendSystem.system.CHAT_ROOM_REF.child(chatRoomId).observe(.childAdded, with: { (snapshot) in
+                    print("This works")
+                    if let dictionary = snapshot.value as? [String:AnyObject] {
+                        print("Hit IF STATEMENT")
+                        //let toId = dictionary["toId"] as! String
+                        let fromId = dictionary["fromId"] as! String
+                        let text = dictionary["text"] as! String
+                        let name = dictionary["name"] as! String
                         let sender = Sender(id: fromId, displayName: name)
-                        
-                        let userMessages = Message(text: text, sender: sender, messageId: self.messageID, date: Date())
-                        self.messages.append(userMessages)
+                        let message = Message(text: text, sender: sender, messageId: self.messageID, date: Date())
+                        self.messages.append(message)
+                        print("THIS IS SNAPSHOT - \(dictionary)")
                         
                         DispatchQueue.main.async {
                             self.messagesCollectionView.reloadData()
@@ -109,16 +96,14 @@ class ChatViewController: MessagesViewController, MessageDelegate {
                         }
                     }
                 })
+            } else {
+                print("There are no messages for this user")
+                return
             }
-        }
-                
-//                DispatchQueue.main.async {
-//                    self.messagesCollectionView.reloadData()
-//                    self.messagesCollectionView.scrollToBottom()
-////                }
-//            }
-//        }
+        })
     }
+    
+    
     
     
     
@@ -131,7 +116,7 @@ class ChatViewController: MessagesViewController, MessageDelegate {
         self.dismiss(animated: true, completion: nil)
     }
     
-}
+} //CLASS
 
 
 
@@ -172,12 +157,14 @@ extension ChatViewController: MessagesDataSource {
 extension ChatViewController: MessageInputBarDelegate {
     
     func messageInputBar(_ inputBar: MessageInputBar, didPressSendButtonWith text: String) {
+        guard let childToId = self.toId else {return}
+        let childFromId = self.fromId
         
-        let messageRef = FriendSystem.system.MESSAGE_REF.childByAutoId()
-        guard let toId = FriendSystem.system.messageToId else { return }//self.toId
+        let chatRoomId = (childFromId < childToId) ? childFromId + "_" + childToId : childToId + "_" + childFromId
+        
+        let messageRef = FriendSystem.system.CHAT_ROOM_REF.child(chatRoomId).childByAutoId()
+        let toId = self.toId!
         let fromId = FriendSystem.system.CURRENT_USER_ID
-        let me = user?.id!
-        print("\(me)")
         let name = currentSender().displayName
         let sender = Sender(id: fromId, displayName: name)
         let date = Date()

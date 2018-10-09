@@ -19,7 +19,8 @@ class FriendSystem {
     
     let BASE_REF = Database.database().reference()
     let USER_REF = Database.database().reference().child("users")
-    let MESSAGE_REF = Database.database().reference().child("Messages")
+    let CHAT_ROOM_REF = Database.database().reference().child("Private Chat")
+    
     var messageToId: String?
     
     var CURRENT_USER_REF: DatabaseReference {
@@ -34,6 +35,8 @@ class FriendSystem {
     var CURRENT_USER_REQUESTS_REF: DatabaseReference {
         return CURRENT_USER_REF.child("requests")
     }
+    
+    
     
     var CURRENT_USER_ID: String {
         let id = Auth.auth().currentUser!.uid
@@ -242,35 +245,35 @@ class FriendSystem {
     }
     
     //10/6/18 - This function Added Today
-    var messages = [MessageType]()
-    
-    func addChatObserver(_ update: @escaping () -> Void) {
-        MESSAGE_REF.observe(DataEventType.value, with: { (snapshot) in
-            for child in snapshot.children.allObjects as! [DataSnapshot] {
-                if let dictionary = child.value as? [String : AnyObject] {
-                    let toId = dictionary["toId"] as! String
-                    let name = dictionary["name"] as! String
-                    let text = dictionary["text"] as! String
-                    let fromId = dictionary["fromId"] as! String
-                    
-                    let id = child.key
-                    print("This is add Chat Observer ID: \(id)")
-                    print("This is dictionary from addChatObserver \(dictionary)")
-                    //                let toId = self.messageToId!
-                    //                let fromId = self.CURRENT_USER_ID
-                }//Dict End
-                
-                //                let sender = Sender(id: fromId, displayName: name)
-                //                let message = Message(text: <#T##String#>, sender: sender, messageId: <#T##String#>, date: Date())
-                
-                update()
-            }
-            
-            if snapshot.childrenCount == 0 {
-                update()
-            }
-        })
-    }
+//    var messages = [MessageType]()
+//    
+//    func addChatObserver(_ update: @escaping () -> Void) {
+//        MESSAGE_REF.observe(DataEventType.value, with: { (snapshot) in
+//            for child in snapshot.children.allObjects as! [DataSnapshot] {
+//                if let dictionary = child.value as? [String : AnyObject] {
+//                    let toId = dictionary["toId"] as! String
+//                    let name = dictionary["name"] as! String
+//                    let text = dictionary["text"] as! String
+//                    let fromId = dictionary["fromId"] as! String
+//                    
+//                    let id = child.key
+//                    print("This is add Chat Observer ID: \(id)")
+//                    print("This is dictionary from addChatObserver \(dictionary)")
+//                    //                let toId = self.messageToId!
+//                    //                let fromId = self.CURRENT_USER_ID
+//                }//Dict End
+//                
+//                //                let sender = Sender(id: fromId, displayName: name)
+//                //                let message = Message(text: <#T##String#>, sender: sender, messageId: <#T##String#>, date: Date())
+//                
+//                update()
+//            }
+//            
+//            if snapshot.childrenCount == 0 {
+//                update()
+//            }
+//        })
+//    }
     
     
     //MARK: - All Requests
