@@ -26,7 +26,9 @@ class UsersTableViewController: UIViewController, UITableViewDelegate {
 
         FriendSystem.system.getCurrentUser { (user) in
             let name = user.name
-           self.currentUserLabel.text = "\(name!)'s Account"
+            self.currentUserLabel.textColor = .red
+            self.currentUserLabel.font.withSize(25)
+           self.currentUserLabel.text = "\(name!)"
         }
 
         FriendSystem.system.addUserObserver {
@@ -47,10 +49,6 @@ class UsersTableViewController: UIViewController, UITableViewDelegate {
             print("Error signing out: \(signoutError)")
         }
         dismiss(animated: true, completion: nil)
-//        let loginViewController = LogInViewController()
-//        FriendSystem.system.logoutAccount()
-//        present(loginViewController, animated: true, completion: nil)
-        
     }
     
 }

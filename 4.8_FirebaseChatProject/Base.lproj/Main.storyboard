@@ -256,29 +256,20 @@
                                     <color key="titleColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mdl-y6-uaC">
-                                <rect key="frame" x="314" y="105" width="46" height="30"/>
-                                <state key="normal" title="Button">
-                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                </state>
-                            </button>
                         </subviews>
                         <color key="backgroundColor" red="0.39562904250000003" green="0.44866975040000001" blue="0.66666668650000005" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <constraints>
                             <constraint firstItem="HFa-Yd-guQ" firstAttribute="top" secondItem="ZkZ-tI-czA" secondAttribute="top" constant="20" id="0Cn-Gl-Orj"/>
                             <constraint firstItem="XgQ-pH-9W6" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="dRD-R6-dxx" secondAttribute="leading" constant="20" symbolic="YES" id="1Ar-HU-C8N"/>
-                            <constraint firstItem="ZkZ-tI-czA" firstAttribute="trailing" secondItem="mdl-y6-uaC" secondAttribute="trailing" constant="15" id="5Oi-ZM-gZd"/>
                             <constraint firstItem="5hW-LE-flY" firstAttribute="top" secondItem="HmG-vz-Wnb" secondAttribute="bottom" constant="85" id="7hP-2y-3H4"/>
                             <constraint firstItem="Ljw-Xs-dQi" firstAttribute="top" secondItem="HFa-Yd-guQ" secondAttribute="bottom" constant="8" id="8ox-cc-ucc"/>
                             <constraint firstItem="HFa-Yd-guQ" firstAttribute="centerX" secondItem="dRD-R6-dxx" secondAttribute="centerX" id="BUI-vA-iFb"/>
                             <constraint firstItem="ZkZ-tI-czA" firstAttribute="bottom" secondItem="HmG-vz-Wnb" secondAttribute="bottom" id="MhT-po-6w3"/>
                             <constraint firstItem="5hW-LE-flY" firstAttribute="baseline" secondItem="XgQ-pH-9W6" secondAttribute="baseline" id="P9I-42-HNo"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="5hW-LE-flY" secondAttribute="trailing" constant="20" symbolic="YES" id="RrJ-Kh-Hco"/>
-                            <constraint firstItem="mdl-y6-uaC" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="dRD-R6-dxx" secondAttribute="leading" constant="20" symbolic="YES" id="VR1-ta-9QE"/>
                             <constraint firstItem="ZkZ-tI-czA" firstAttribute="trailing" secondItem="XgQ-pH-9W6" secondAttribute="trailing" constant="15" id="X3Q-vY-i1u"/>
                             <constraint firstItem="Rh2-ji-or5" firstAttribute="leading" secondItem="ZkZ-tI-czA" secondAttribute="leading" constant="15" id="YoJ-jB-0p4"/>
                             <constraint firstItem="HmG-vz-Wnb" firstAttribute="top" secondItem="Rh2-ji-or5" secondAttribute="bottom" constant="5" id="bUB-tz-YIf"/>
-                            <constraint firstItem="HmG-vz-Wnb" firstAttribute="top" secondItem="mdl-y6-uaC" secondAttribute="bottom" constant="5" id="cDe-xh-byd"/>
                             <constraint firstItem="Ljw-Xs-dQi" firstAttribute="centerX" secondItem="dRD-R6-dxx" secondAttribute="centerX" id="lEC-pa-IKX"/>
                             <constraint firstItem="HmG-vz-Wnb" firstAttribute="leading" secondItem="ZkZ-tI-czA" secondAttribute="leading" id="pZy-zk-Xkh"/>
                             <constraint firstItem="ZkZ-tI-czA" firstAttribute="trailing" secondItem="HmG-vz-Wnb" secondAttribute="trailing" id="tfQ-BD-NDQ"/>
@@ -336,13 +327,13 @@
                                     <action selector="logoutButtonTapped:" destination="Vj2-2W-n4G" eventType="touchUpInside" id="lcc-tp-egY"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hOE-hk-Cea">
-                                <rect key="frame" x="100" y="100" width="175" height="30"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hOE-hk-Cea">
+                                <rect key="frame" x="100" y="100.5" width="175" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="sLd-rN-fuP"/>
                                     <constraint firstAttribute="width" constant="175" id="zvQ-AX-eIk"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="20"/>
                                 <color key="textColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -448,11 +439,6 @@
                         <barButtonItem key="leftBarButtonItem" title="Dismiss" id="4PV-jU-Dpd">
                             <connections>
                                 <action selector="dismissButtonTapped:" destination="cKw-MG-4Ct" id="U9d-UM-V3t"/>
-                            </connections>
-                        </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" systemItem="compose" id="JNG-Mn-7bx">
-                            <connections>
-                                <action selector="composeButtonTapped:" destination="cKw-MG-4Ct" id="42N-iN-veL"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

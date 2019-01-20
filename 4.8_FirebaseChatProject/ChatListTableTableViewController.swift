@@ -26,28 +26,14 @@ class ChatListTableTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-       // print("User ID from User Class: \(user.id!)")
-        //print("Friend Name from local - Chat List VC \(user.name)")
-        
+       getToId()
         let title = FriendSystem.system.CURRENT_USER_NAME
         navigationItem.title = "\(title)'s Messages"
-        
-//        let friends = UserClass(userEmail: <#String#>, userID: <#String#>, name: <#String#>)
-//        listOfMessages.append(friends.name)
+
         listOfMessages.append(messageRecipient!)
         tableView.reloadData()
     }
     
-//        if delegate != nil {
-//            //delegate?.messageSentTo(user: "John")
-//        }
-//    func messageSentTo(user: String) {
-//        print("USER IS: \(user)")
-//        messageRecipient = user
-//        
-//    }
-    
-   
 
     // MARK: - Table view data source
 
@@ -58,17 +44,18 @@ class ChatListTableTableViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return listOfMessages.count
+        return FriendSystem.system.friendsList.count
     }
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "chatCell", for: indexPath)
 
-        let cellText = listOfMessages[indexPath.row]
-        cell.textLabel?.text = cellText
-        cell.detailTextLabel?.text = "Message Text Here"
-        print("Chat List TVC TO ID: \(self.friendID!)")
+        let friends = FriendSystem.system.friendsList
+        let friendName = friends[indexPath.row].name!
+        cell.textLabel?.text = friendName
+        //cell.detailTextLabel?.text = "Message Text Here"
+        
         return cell
         
     }
@@ -77,10 +64,7 @@ class ChatListTableTableViewController: UITableViewController {
     
     //MARK: - Table View Delegate
     
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-    }
-    
+   
    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 65
     }
@@ -90,10 +74,8 @@ class ChatListTableTableViewController: UITableViewController {
     //MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showChatsList" {
-            
             let chatVC = segue.destination as! ChatViewController
             chatVC.toId = self.friendID!
-            print("Chat List VC TOID PASSED ID: \(self.friendID!)")
         } else {
             print("DID NOT HIT PREPARE FOR SEGUE IN CHAT LIST VC")
         }
@@ -104,13 +86,18 @@ class ChatListTableTableViewController: UITableViewController {
     //MARK: - IB Actions
     
     @IBAction func composeButtonTapped(_ sender: Any) {
-//        let chatViewController = ChatViewController()
-//        present(chatViewController, animated: true, completion: nil)
         self.performSegue(withIdentifier: "chatVCSegue", sender: self)
     }
     
     @IBAction func dismissButtonTapped(_ sender: UIBarButtonItem) {
         self.dismiss(animated: true, completion: nil)
+    }
+    
+    func getToId() {
+        FriendSystem.system.CHAT_ROOM_REF.observe(.childAdded) { (snapshot) in
+            let id = snapshot.key
+            print("This is ID from getToId(): \(id)")
+        }
     }
     
 }
