@@ -51,6 +51,11 @@ class UsersTableViewController: UIViewController, UITableViewDelegate {
         dismiss(animated: true, completion: nil)
     }
     
+    func sendAlert(title: String, message: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+        present(alertController, animated: true, completion: nil)
+    }
 }
 
 
@@ -78,8 +83,9 @@ extension UsersTableViewController: UITableViewDataSource {
         
         cell?.setFunction {
             let id = FriendSystem.system.userList[indexPath.row].id
+            let name = FriendSystem.system.userList[indexPath.row].name
             FriendSystem.system.sendRequestToUser(id!)
-            
+            self.sendAlert(title: "Request Sent", message: "Friend request sent to \(name!)")
         }
         return cell!
     }

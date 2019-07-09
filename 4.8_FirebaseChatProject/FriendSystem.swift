@@ -65,6 +65,7 @@ class FriendSystem {
         })
     }
     
+    
     func getUser(_ userID: String, completion: @escaping (UserClass) -> Void) {
         USER_REF.child(userID).observeSingleEvent(of: DataEventType.value, with: { (snapshot) in
             let user = UserClass()
@@ -92,7 +93,7 @@ class FriendSystem {
                 completion(false)
             }
             if let user = user {
-                let changeRequest = user.createProfileChangeRequest()
+                let changeRequest = user.user.createProfileChangeRequest()
                 changeRequest.displayName = name
                 
                 changeRequest.commitChanges(completion: { (error) in

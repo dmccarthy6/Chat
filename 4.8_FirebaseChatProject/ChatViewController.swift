@@ -10,6 +10,8 @@ import Foundation
 import UIKit
 import Firebase
 import MessageKit
+import InputBarAccessoryView
+
 
 class ChatViewController: MessagesViewController, MessageDelegate {
     
@@ -120,11 +122,12 @@ class ChatViewController: MessagesViewController, MessageDelegate {
 
 //Provide the data to display in messagesVC
 extension ChatViewController: MessagesDataSource {
+    
     func numberOfSections(in messagesCollectionView: MessagesCollectionView) -> Int {
         return messages.count
     }
     
-    func currentSender() -> Sender { //Curent User = Sender
+    func currentSender() -> SenderType { //Curent User = Sender
         let id = FriendSystem.system.CURRENT_USER_ID
         let displayName = FriendSystem.system.CURRENT_USER_NAME
         return Sender(id: id, displayName: displayName)
@@ -150,9 +153,8 @@ extension ChatViewController: MessagesDataSource {
 }
 
 //Responds when the send button is tapped
-extension ChatViewController: MessageInputBarDelegate {
-    
-    func messageInputBar(_ inputBar: MessageInputBar, didPressSendButtonWith text: String) {
+extension ChatViewController: InputBarAccessoryViewDelegate {
+    func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
         guard let childToId = self.toId else {return}
         let childFromId = self.fromId
         
@@ -170,8 +172,9 @@ extension ChatViewController: MessageInputBarDelegate {
         let newMessage = [
             "text" : text,
             "toId": toId,
-            "fromId" : currentSender().id,
+            "fromId" : currentSender().senderId,
             "name" : currentSender().displayName
+            
         ]
         
         messageRef.setValue(newMessage)
@@ -180,13 +183,12 @@ extension ChatViewController: MessageInputBarDelegate {
         inputBar.inputTextView.text = String()
         messagesCollectionView.reloadData()
         messagesCollectionView.scrollToBottom(animated: true)
-        
     }
 }
 
 extension ChatViewController: MessagesDisplayDelegate, MessagesLayoutDelegate {
     func heightForLocation(message: MessageType, at indexPath: IndexPath, with maxWidth: CGFloat, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-        return 250
+        return 300
     }
     
     func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
@@ -208,11 +210,13 @@ extension ChatViewController: MessagesDisplayDelegate, MessagesLayoutDelegate {
     func avatarSize(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGSize {
         return .zero
     }
-    //    func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
-    //        let message = messages[indexPath.section]
-    //        let color = message.member.color
-    //        avatarView.backgroundColor = color
-    //    }
+    
+    func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
+        let message = messages[indexPath.section]
+        
+//        let color = message.member.color
+//        avatarView.backgroundColor = color
+    }
     
     func textColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
         if isFromCurrentSender(message: message) {
