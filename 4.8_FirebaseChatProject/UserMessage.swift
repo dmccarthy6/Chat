@@ -52,7 +52,7 @@ struct Member {
     
 struct Message: MessageType {
     var messageId: String
-    var sender: Sender
+    var sender: SenderType
     var sentDate: Date
     var kind: MessageKind
     
