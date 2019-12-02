@@ -8,7 +8,11 @@ This application was created to develop a private person to person chat applicat
 
 Technologies Used:
 
-UICollectionView
-UITabBarController
-Firebase
-MessageKit
+-UICollectionView
+
+-UITabBarController
+
+-Firebase
+
+-MessageKit
+
